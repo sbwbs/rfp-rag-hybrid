@@ -101,87 +101,87 @@ def main():
     
     # Left column for input
     with col1:
-        # Document upload tab
-        st.header("Upload Document")
-        uploaded_file = st.file_uploader(
-            "Choose a document (PDF, DOCX, XLSX, TXT)",
-            type=["pdf", "docx", "xlsx", "txt"]
-        )
+        # # Document upload tab
+        # st.header("Upload Document")
+        # uploaded_file = st.file_uploader(
+        #     "Choose a document (PDF, DOCX, XLSX, TXT)",
+        #     type=["pdf", "docx", "xlsx", "txt"]
+        # )
         
-        if uploaded_file:
-            try:
-                with st.spinner("Processing document..."):
-                    # Process the uploaded file
-                    start_time = time.time()
-                    extracted_text = document_processor.process_uploaded_file(uploaded_file)
-                    processing_time = time.time() - start_time
+        # if uploaded_file:
+        #     try:
+        #         with st.spinner("Processing document..."):
+        #             # Process the uploaded file
+        #             start_time = time.time()
+        #             extracted_text = document_processor.process_uploaded_file(uploaded_file)
+        #             processing_time = time.time() - start_time
                     
-                    # Show preview of extracted text
-                    st.subheader("Extracted Content Preview")
-                    st.text_area(
-                        "Preview (first 1000 characters)",
-                        extracted_text[:1000] + ("..." if len(extracted_text) > 1000 else ""),
-                        height=150
-                    )
+        #             # Show preview of extracted text
+        #             st.subheader("Extracted Content Preview")
+        #             st.text_area(
+        #                 "Preview (first 1000 characters)",
+        #                 extracted_text[:1000] + ("..." if len(extracted_text) > 1000 else ""),
+        #                 height=150
+        #             )
                     
-                    st.info(f"Document processed in {processing_time:.2f} seconds. Total characters: {len(extracted_text)}")
+        #             st.info(f"Document processed in {processing_time:.2f} seconds. Total characters: {len(extracted_text)}")
                     
-                    # Chunk the text
-                    chunks = document_processor.chunk_text(
-                        extracted_text,
-                        chunk_size=config.CHUNK_SIZE,
-                        overlap=config.CHUNK_OVERLAP
-                    )
+        #             # Chunk the text
+        #             chunks = document_processor.chunk_text(
+        #                 extracted_text,
+        #                 chunk_size=config.CHUNK_SIZE,
+        #                 overlap=config.CHUNK_OVERLAP
+        #             )
                     
-                    st.text(f"Document split into {len(chunks)} chunks")
+        #             st.text(f"Document split into {len(chunks)} chunks")
                     
-                    # Save to session state for indexing
-                    st.session_state.extracted_text = extracted_text
-                    st.session_state.chunks = chunks
+        #             # Save to session state for indexing
+        #             st.session_state.extracted_text = extracted_text
+        #             st.session_state.chunks = chunks
                     
-                    # Log activity
-                    log_activity("document_upload", {
-                        "filename": uploaded_file.name,
-                        "size": len(extracted_text),
-                        "chunks": len(chunks)
-                    })
+        #             # Log activity
+        #             log_activity("document_upload", {
+        #                 "filename": uploaded_file.name,
+        #                 "size": len(extracted_text),
+        #                 "chunks": len(chunks)
+        #             })
                     
-                    track_metric("documents_processed")
+        #             track_metric("documents_processed")
                     
-                    # Allow manual indexing (for MVP simplicity)
-                    if st.button("Index Document Manually"):
-                        with st.spinner("Indexing document..."):
-                            try:
-                                # For MVP simplicity, just index the first chunk
-                                # In a real app, you'd want to index all chunks with proper metadata
-                                metadata = {
-                                    "source": uploaded_file.name,
-                                    "chunk": 1,
-                                    "total_chunks": len(chunks),
-                                    "content_preview": chunks[0][:100],
-                                    "question": f"What information is in {uploaded_file.name}?",
-                                    "answer": chunks[0]
-                                }
+        #             # Allow manual indexing (for MVP simplicity)
+        #             if st.button("Index Document Manually"):
+        #                 with st.spinner("Indexing document..."):
+        #                     try:
+        #                         # For MVP simplicity, just index the first chunk
+        #                         # In a real app, you'd want to index all chunks with proper metadata
+        #                         metadata = {
+        #                             "source": uploaded_file.name,
+        #                             "chunk": 1,
+        #                             "total_chunks": len(chunks),
+        #                             "content_preview": chunks[0][:100],
+        #                             "question": f"What information is in {uploaded_file.name}?",
+        #                             "answer": chunks[0]
+        #                         }
                                 
-                                search_engine.index_document(
-                                    chunks[0],
-                                    metadata
-                                )
+        #                         search_engine.index_document(
+        #                             chunks[0],
+        #                             metadata
+        #                         )
                                 
-                                st.success("Document indexed successfully!")
+        #                         st.success("Document indexed successfully!")
                                 
-                                log_activity("document_indexed", {
-                                    "filename": uploaded_file.name,
-                                    "chunk_count": 1
-                                })
+        #                         log_activity("document_indexed", {
+        #                             "filename": uploaded_file.name,
+        #                             "chunk_count": 1
+        #                         })
                                 
-                                track_metric("chunks_indexed")
-                            except Exception as e:
-                                st.error(f"Error indexing document: {str(e)}")
-                                logger.error(f"Error indexing document: {e}")
-            except Exception as e:
-                st.error(f"Error processing document: {str(e)}")
-                logger.error(f"Error processing document: {e}")
+        #                         track_metric("chunks_indexed")
+        #                     except Exception as e:
+        #                         st.error(f"Error indexing document: {str(e)}")
+        #                         logger.error(f"Error indexing document: {e}")
+        #     except Exception as e:
+        #         st.error(f"Error processing document: {str(e)}")
+        #         logger.error(f"Error processing document: {e}")
         
         # Question input section
         st.header("Ask a Question")
